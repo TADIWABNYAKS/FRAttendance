@@ -1,9 +1,10 @@
 import maskpass  
 from pymongo import MongoClient #pip install pymongo, pip install pymongo[srv]
 import cv2 
-import face_recognition #pip3 install face_recognition
+import face_recognition #pip3 install face_recognition AFTER 
 import numpy as np 
 import os 
+import cmake 
 
 class Attendance():
     def __init__(self , mongo , d , s):
@@ -45,7 +46,7 @@ class Attendance():
 
             for encodface,faceloc in zip(encodedframe,frame): #Iterate through  faces and encoded faces in the 2 lists
                 matches = face_recognition.compare_faces(self.session_student ,encodface)
-                face_distance = face_recognition.face_distance(self.session_student,encodface) #Face distances to data , where smaller the distance the higher chance of a match
+                face_distance = face_recognition.face_distance(self.sespusion_student,encodface) #Face distances to data , where smaller the distance the higher chance of a match
                 matchIndex = np.argmin(face_distance) #Get match from face distance list
                  
                 if matches[matchIndex]:
@@ -57,9 +58,6 @@ class Attendance():
                      cv2.rectangle(image,(x1,y1),(x2,y2),(0,255,0),cv2.FILLED)
                      cv2.putText(image,student_num,(x1+6 , y2-6) , cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255) ,2)
 
-
-
-            
     
     def encode(image):
          img = cv2.cvtColor(img , cv2.COLOR_BGR2RGB)
@@ -75,17 +73,6 @@ class Attendance():
             student_names.append(os.path.splitext(file)[0])
         return student_encodings ,student_names
     
-    '''
-     Method produces attendance for all students in all tut sessions in the db 
-     HAS NOT BEEN IMPLEMENTED YET.
-    '''
-    def attendace(self):
-      pass
-           
-       
-
-
-
 
 '''
     Main method for attendace script , tutor enters session details for the day , and makes connection to db using private password reserved for them.
