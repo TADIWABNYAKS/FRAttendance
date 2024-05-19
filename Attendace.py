@@ -58,7 +58,6 @@ class Attendance():
             frame_counter = 0  
             frame_interval = 120  # Detect faces every X frames. (For performance)
 
-                y1,x2,y2,x1 =  faceloc #Bounds for person's face
             for encodface, faceloc in zip(encodedframe, frame):  # Iterate through faces and encoded faces in the 2 lists
                 if frame_counter % frame_interval == 0:  # Check if it's time to detect faces
                     matches = face_recognition.compare_faces(self.session_student, encodface)
@@ -98,39 +97,45 @@ class Attendance():
             student_names.append(os.path.splitext(file)[0])
         return np.array(student_encodings), np.array(student_names)
 
-    Main method for attendace script , tutor enters session details for the day , and makes connection to db using private password reserved for them.
 def main():
-  day = date.today()
-  start_time = int(input('Enter start time of session,  Format:HHMM\n')) #All sessions are assumed to be 2 hrs , so if start is 1400 hrs this is the 1400 to 1600 session
-  username = input('Enter username for database\n')
-  password = maskpass.askpass(mask="*")
-  user_and_pass = username + ':'+ password 
-  mongo = 'mongodb+srv://'+user_and_pass+'INSERT YOUR DATABASE CONNECTION HERE '
-  
-  tut = Attendance(mongo, day , start_time) 
-  #INSERT MENU HERE 
-  while(True):
-       print('*****_____Attendance System_____*****')
-       print('1: Take tut attendance')
-       print('2: Publish tut attendance')
-       print('3: Add new student to session images')
-       print('4: Get attendance rate and DP csv')
-       print('Q: QUIT PROGRAM')
-       i = input("CHOICE:").upper()
-       if i == '1':
-           tut.mark()
-       elif i == '2':
-           tut.endSession()
-       elif i == '3':
-           tut.addStudent()
-       elif i == "q":
-          print('Great work today (〃￣︶￣)人(￣︶￣〃)')
-          quit()
-          
-       else:
-           print("unrecognised command try again?")
-     #  print("\033[2J\033[H", end="", flush=True) # Clear terminal
-
+    day = date.today()
+    start_time = int(input('Enter start time of session,  Format:HHMM\n'))  # All sessions are assumed to be 2 hrs, so if start is 1400 hrs this is the 1400 to 1600 session
+    while True:
+        username = input('Enter username for database\n')
+        password = maskpass.askpass(mask="*")
+        user_and_pass = username + ':' + password 
+        mongo_str = 'mongodb+srv://' + user_and_pass   # +'INSERT YOUR DATABASE CONNECTION HERE '
+        try:
+            client = pymongo.MongoClient(mongo_str)
+            client.server_info()  # Try connection to db to check if details entered are valid
+            break
+        except:
+            print(Exception)
+            print("Error during database connection, maybe wrong password?")
+    
+    tut = Attendance(client, day, start_time)  # Start instance of attendance object before looping menu to save state
+    while True:
+        print('*****_____Attendance System_____*****')
+        print('1: Take tut attendance')
+        print('2: Publish tut attendance')
+        print('3: Add new student to session images')
+        print('4: Get attendance rate and DP csv (NOT WORKING YET)')
+        print('Q: QUIT PROGRAM')
+        i = input("CHOICE:").upper()
+        if i == '1':
+            tut.mark()
+        elif i == '2':
+            tut.endSession()
+        elif i == '3':
+            tut.addStudent()
+        elif i == '4':
+            print("NOT WORKING YET")
+        elif i == "Q":
+            print('Great work today (〃￣︶￣)人(￣︶￣〃)')
+            quit()     
+        else:
+            print("unrecognised command try again?")
+        print("\033[2J\033[H", end="", flush=True)  # Clear terminal
 
 if __name__ == '__main__':
     main()
