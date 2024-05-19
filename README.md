@@ -20,4 +20,4 @@ To implement , replace the mongo string in the main method with your own, and th
 
 In addition to that you need pictures of all the students in the session in a subdirectory called 'StudentImages' and have the name of each image be how you want to identfify the student in the database , perhabs student number? 
 
- Other than that , use is as simple as following the text based UI housed in the main method. 
+Other than that , use is as simple as following the text based UI housed in the main method. 
