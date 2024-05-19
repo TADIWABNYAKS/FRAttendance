@@ -1,6 +1,6 @@
 # FR Attendance
 
-Attendance system for university tutorials that uses facial recognition to mark student attendace , and get a list of students who have met the course's required minimum attendance.
+Attendance system for university tutorials that uses facial recognition to mark student attendance , storing the register in mongoDB , and allowing the ability to extract a list of students who have met the course's required minimum attendance and those who haven't.
 ### WARNING⚠️: This project is currently under development so not all features have been implemented and testing is still under progress 
 
 ## Prerequisites
