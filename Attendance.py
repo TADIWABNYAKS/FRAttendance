@@ -8,12 +8,12 @@ from datetime import date
 
 class Attendance():
     def __init__(self, c, d, s):
-        # self.client = c
+        self.client = c
         self.day = d.strftime('%A')  # Day of week for tutorial session 
         self.date = d.strftime('%d/%m/%Y')  # Exact date of tutorial 
         self.session = s 
         self.path = 'StudentImages'
-        self.session_student, self.student_names = self.getKnownStudents()
+        self.session_student, self.student_names = self.getKnownStudents() 
         self.present = [] 
         self.dp = 0.8  # Percentage of tutorials that must be attended in a year for student to have dp 
 
@@ -23,10 +23,10 @@ class Attendance():
             "Session": self.session,
             "Attended": self.present
         }
-        # db = self.client["UCTAttendance"] 
-        # area = db[self.day]
+        db = self.client["UCTAttendance"] 
+        area = db[self.day]
         try:
-            # area.insert_one(record)
+            area.insert_one(record)
             print(record)
             print("Done")
         except:
@@ -60,8 +60,8 @@ class Attendance():
 
             for encodface, faceloc in zip(encodedframe, frame):  # Iterate through faces and encoded faces in the 2 lists
                 if frame_counter % frame_interval == 0:  # Check if it's time to detect faces
-                    matches = face_recognition.compare_faces(self.session_student, encodface)
-                    face_distance = face_recognition.face_distance(self.session_student, encodface)  # Face distances to data, where smaller the distance the higher chance of a match
+                    matches = face_recognition.compare_faces(self.session_students, encodface)
+                    face_distance = face_recognition.face_distance(self.session_students, encodface)  # Face distances to data, where smaller the distance the higher chance of a match
                     matchIndex = np.argmin(face_distance)  # Get match from face distance list
                     y1, x2, y2, x1 = faceloc  # Bounds for person's face
                     y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4  # Scaling frame bound up as they were generated using a scaled down
@@ -97,23 +97,29 @@ class Attendance():
             student_names.append(os.path.splitext(file)[0])
         return np.array(student_encodings), np.array(student_names)
 
-def main():
-    day = date.today()
-    start_time = int(input('Enter start time of session,  Format:HHMM\n'))  # All sessions are assumed to be 2 hrs, so if start is 1400 hrs this is the 1400 to 1600 session
+
+
+
+def connect_to_mongodb():
     while True:
         username = input('Enter username for database\n')
         password = maskpass.askpass(mask="*")
-        user_and_pass = username + ':' + password 
-        mongo_str = 'mongodb+srv://' + user_and_pass   # +'INSERT YOUR DATABASE CONNECTION HERE '
+        mongo_str = f'mongodb+srv://{username}:{password}@<YOUR_MONGO_CLUSTER_URI>'
         try:
             client = pymongo.MongoClient(mongo_str)
-            client.server_info()  # Try connection to db to check if details entered are valid
-            break
-        except:
-            print(Exception)
-            print("Error during database connection, maybe wrong password?")
+            client.server_info()  # Test connection to check if details are valid
+            return client
+        except pymongo.errors.ServerSelectionTimeoutError as err:
+            print(f"Error during database connection: {err}")
+            print("Maybe wrong password?")
+
+
+def main():
+    day = date.today()
+    start_time = int(input('Enter start time of session,  Format:HHMM\n'))  # All sessions are assumed to be 2 hrs, so if start is 1400 hrs this is the 1400 to 1600 session
+    client = connect_to_mongodb()
     
-    tut = Attendance(client, day, start_time)  # Start instance of attendance object before looping menu to save state
+    attendance = Attendance(client, day, start_time)  # Start instance of attendance object before looping menu to save state
     while True:
         print('*****_____Attendance System_____*****')
         print('1: Take tut attendance')
@@ -121,20 +127,20 @@ def main():
         print('3: Add new student to session images')
         print('4: Get attendance rate and DP csv (NOT WORKING YET)')
         print('Q: QUIT PROGRAM')
-        i = input("CHOICE:").upper()
-        if i == '1':
-            tut.mark()
-        elif i == '2':
-            tut.endSession()
-        elif i == '3':
-            tut.addStudent()
-        elif i == '4':
+        choice = input("CHOICE: ").upper()
+        if choice == '1':
+            attendance.mark()
+        elif choice == '2':
+            attendance.end_session()
+        elif choice == '3':
+            attendance.add_student()
+        elif choice == '4':
             print("NOT WORKING YET")
-        elif i == "Q":
+        elif choice == 'Q':
             print('Great work today (〃￣︶￣)人(￣︶￣〃)')
-            quit()     
+            break
         else:
-            print("unrecognised command try again?")
+            print("Unrecognized command, try again?")
         print("\033[2J\033[H", end="", flush=True)  # Clear terminal
 
 if __name__ == '__main__':
