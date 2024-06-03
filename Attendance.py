@@ -100,24 +100,23 @@ class Attendance():
 
 
 
-def connect_to_mongodb():
+def connectMongodb():
     while True:
         username = input('Enter username for database\n')
         password = maskpass.askpass(mask="*")
-        mongo_str = f'mongodb+srv://{username}:{password}@<YOUR_MONGO_CLUSTER_URI>'
+        mongo_str = f'mongodb+srv://{username}:{password}@INSERT YOUR MONGO URI HERE'
         try:
             client = pymongo.MongoClient(mongo_str)
             client.server_info()  # Test connection to check if details are valid
             return client
-        except pymongo.errors.ServerSelectionTimeoutError as err:
-            print(f"Error during database connection: {err}")
+        except:
+            print(f"Error during database connection")
             print("Maybe wrong password?")
 
 
 def main():
     day = date.today()
     start_time = int(input('Enter start time of session,  Format:HHMM\n'))  # All sessions are assumed to be 2 hrs, so if start is 1400 hrs this is the 1400 to 1600 session
-    client = connect_to_mongodb()
     
     attendance = Attendance(client, day, start_time)  # Start instance of attendance object before looping menu to save state
     while True:
@@ -131,9 +130,9 @@ def main():
         if choice == '1':
             attendance.mark()
         elif choice == '2':
-            attendance.end_session()
+            attendance.endSession()
         elif choice == '3':
-            attendance.add_student()
+            attendance.addStudent()
         elif choice == '4':
             print("NOT WORKING YET")
         elif choice == 'Q':
