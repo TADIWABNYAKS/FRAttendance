@@ -117,7 +117,7 @@ def connectMongodb():
 def main():
     day = date.today()
     start_time = int(input('Enter start time of session,  Format:HHMM\n'))  # All sessions are assumed to be 2 hrs, so if start is 1400 hrs this is the 1400 to 1600 session
-    
+    client = connectMongodb()
     attendance = Attendance(client, day, start_time)  # Start instance of attendance object before looping menu to save state
     while True:
         print('*****_____Attendance System_____*****')
