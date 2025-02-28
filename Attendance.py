@@ -34,7 +34,15 @@ class Attendance():
             print("DATA FOR MANUAL INSERTION")
             print(record)
 
+
+   
+    def imagesFromS3(): 
+        print("I SHOULD HAVE GOTTEN DATA FROM AN S3 bucket with student pictures")
     def addStudent():
+        '''BISHOP NOTES 
+         logic pretty straight forward here , just capture image of student , maybe have same dimensions as the images which are used to compare?
+          
+        '''
         print("I DON'T WORK YET, ADD pics manually for now")
         pass
 
